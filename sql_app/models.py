@@ -5,29 +5,27 @@ Created on Tue Apr 12 17:57:46 2022
 @author: codevacyacode
 """
 
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
-from sqlalchemy.orm import relationship
+import sqlalchemy as sa
 
-from .database import Base
-
-
-class User(Base):
-    __tablename__ = "users"
-
-    id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, index=True)
-    hashed_password = Column(String)
-    is_active = Column(Boolean, default=True)
-
-    items = relationship("Item", back_populates="owner")
+from .database import metadata
 
 
-class Item(Base):
-    __tablename__ = "items"
+users = sa.Table(
+    "users",
+    metadata,
+    sa.Column("id", sa.Integer, primary_key = True),
+    sa.Column("email", sa.String),
+    sa.Column("nickname", sa.String(32)),
+    sa.Column("hashed_password", sa.String),
+    sa.Column("online", sa.Boolean, default = False)
+)
 
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, index=True)
-    description = Column(String, index=True)
-    owner_id = Column(Integer, ForeignKey("users.id"))
-
-    owner = relationship("User", back_populates="items")
+messages = sa.Table(
+    "messages",
+    metadata,
+    sa.Column("id", sa.Integer, primary_key = True),
+    sa.Column("time", sa.DateTime),
+    sa.Column("sender", sa.Integer, sa.ForeignKey("users.id")),
+    sa.Column("receiver", sa.Integer, sa.ForeignKey("users.id")),
+    sa.Column("text", sa.String, nullable = False)
+)

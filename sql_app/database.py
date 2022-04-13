@@ -7,9 +7,7 @@ Created on Tue Apr 12 16:42:27 2022
 import os
 
 from dotenv import load_dotenv, find_dotenv
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+import sqlalchemy as sa
 
 
 """
@@ -19,9 +17,9 @@ from sqlalchemy.orm import sessionmaker
 load_dotenv(find_dotenv())
 SQLALCHEMY_DATABASE_URL = os.environ.get('SQLALCHEMY_DATABASE_URL')
 
-engine = create_engine(
+metadata = sa.MetaData()
+
+engine = sa.create_engine(
     SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
 )
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-Base = declarative_base()
+metadata.create_all(engine)
