@@ -7,7 +7,7 @@ Created on Tue Apr 12 16:42:27 2022
 import os
 
 from dotenv import load_dotenv, find_dotenv
-from sqlalchemy import create_engine
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import registry, sessionmaker
 
 
@@ -19,8 +19,10 @@ load_dotenv(find_dotenv())
 SQLALCHEMY_DATABASE_URL = os.environ.get('SQLALCHEMY_DATABASE_URL')
 
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+engine = create_async_engine(SQLALCHEMY_DATABASE_URL, echo = True)
+SessionLocal = sessionmaker(engine, 
+                            expire_on_commit = False, 
+                            class_ = AsyncSession)
 
 
 mapper_registry = registry()
