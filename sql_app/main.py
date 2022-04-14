@@ -4,7 +4,7 @@ Created on Tue Apr 12 18:08:45 2022
 
 @author: codevacyacode
 """
-
+from datetime import datetime
 from typing import List
 
 from fastapi import Depends, FastAPI, HTTPException
@@ -49,14 +49,17 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
     return db_user
 
 
-@app.post("/users/{user_id}/items/", response_model=schemas.Item)
-def create_item_for_user(
-    user_id: int, item: schemas.ItemCreate, db: Session = Depends(get_db)
+@app.post("/users/{user_id}/messages/", response_model=schemas.Message)
+def create_message(
+    time: datetime, 
+    message: schemas.MessageCreate, 
+    db: Session = Depends(get_db)
 ):
-    return crud.create_user_item(db=db, item=item, user_id=user_id)
+    return crud.create_message(db = db, message = message, time = datetime)
 
 
-@app.get("/items/", response_model=List[schemas.Item])
-def read_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    items = crud.get_items(db, skip=skip, limit=limit)
-    return items
+@app.get("/messages/", response_model=List[schemas.Message])
+def read_messages(skip: int = 0, limit: int = 100, 
+                  db: Session = Depends(get_db)):
+    messages = crud.get_messages(db, skip=skip, limit=limit)
+    return messages

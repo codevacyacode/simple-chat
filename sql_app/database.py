@@ -26,4 +26,3 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 mapper_registry = registry()
 mapper_registry.metadata
 Base = mapper_registry.generate_base()
-Base.metadata.create_all(engine)
