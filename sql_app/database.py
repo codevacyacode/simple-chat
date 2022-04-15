@@ -6,9 +6,10 @@ Created on Tue Apr 12 16:42:27 2022
 """
 import os
 
+import databases
 from dotenv import load_dotenv, find_dotenv
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import registry, sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.ext.declarative import declarative_base
 
 
 """
@@ -18,12 +19,8 @@ from sqlalchemy.orm import registry, sessionmaker
 load_dotenv(find_dotenv())
 SQLALCHEMY_DATABASE_URL = os.environ.get('SQLALCHEMY_DATABASE_URL')
 
+database = databases.Database(SQLALCHEMY_DATABASE_URL)
 
 engine = create_async_engine(SQLALCHEMY_DATABASE_URL, echo=True)
-SessionLocal = sessionmaker(engine, 
-                            expire_on_commit=False, 
-                            class_=AsyncSession)
 
-
-mapper_registry = registry()
-Base = mapper_registry.generate_base()
+Base = declarative_base()

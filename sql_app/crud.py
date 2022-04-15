@@ -7,47 +7,46 @@ Created on Tue Apr 12 18:07:35 2022
 from datetime import datetime
 import hashlib
 
-from sqlalchemy.ext.asyncio import AsyncSession
+from databases import Database
 
 from . import models, schemas
 
 
-def get_user(db: AsyncSession, user_id: int):
-    result = await db.query(models.User).filter(
-        models.User.id == user_id).first()
+def get_user(db: Database, user_id: int):
+    query = (models.User).filter(models.User.id==user_id).first()
+    result = await db.fetch_one(query)
     return result
 
-async def get_user_by_email(db: AsyncSession, email: str):
-    result = await db.query(
-        models.User).filter(models.User.email==email).first()
+async def get_user_by_email(db: Database, email: str):
+    query = (models.User).filter(models.User.email==email).first()
+    result = await db.fetch_one(query)
     return result
 
-async def get_users(db: AsyncSession, skip: int = 0, limit: int = 100):
-    result = await db.query(models.User).offset(skip).limit(limit).all()
+async def get_users(db: Database, skip: int = 0, limit: int = 100):
+    query = (models.User).offset(skip).limit(limit).all()
+    result = await db.fetch_all(query)
     return result
 
 
-async def create_user(db: AsyncSession, user: schemas.UserCreate):
+async def create_user(db: Database, user: schemas.UserCreate):
     hashed_password = hashlib.sha256(bytes(user.password, 'utf-8'))
-    db_user = models.User(email=user.email, 
-                          hashed_password=hashed_password,
-                          nickname=user.nickname)
-    await db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return db_user
-
-
-async def get_messages(db: AsyncSession, skip: int = 0, limit: int = 100):
-    result = await db.query(models.Message).offset(skip).limit(limit).all()
+    query = (models.User).insert().values(email=user.email, 
+                                          hashed_password=hashed_password,
+                                          nickname=user.nickname)
+    result = await db.execute(query)
     return result
 
 
-async def create_message(db: AsyncSession, message: schemas.MessageCreate, 
+async def get_messages(db: Database, skip: int = 0, limit: int = 100):
+    query = (models.Message).offset(skip).limit(limit).all()
+    result = await db.fetch_all(query)
+    return result
+
+
+async def create_message(db: Database, message: schemas.MessageCreate, 
                    time: datetime):
     time = datetime.now()
     db_message = models.Message(**message.dict(), time=time)
-    await db.add(db_message)
-    db.commit()
-    db.refresh(db_message)
+    query = (models.Message).insert().values(db_message)
+    await db.execute(query)
     return db_message
