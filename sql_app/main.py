@@ -12,19 +12,26 @@ from databases import Database
 
 from . import database, crud, models, schemas
 
-models.Base.metadata.create_all(bind = database.engine)
+
+(models.Base).metadata.create_all(bind=database.engine)
 
 app = FastAPI()
-
 
 # Dependency
 async def get_db():
     db = database.database
     try:
-        yield db
+        await db.connect()
     finally:
-        db.disconnect()
+        await db.disconnect()
 
+@app.on_event("startup")
+async def startup():
+    await (database.database).connect()
+    
+@app.on_event("shutdown")
+async def shutdown():
+    await (database.database).disconnect()
 
 @app.post("/users/", response_model=schemas.User)
 async def create_user(user: schemas.UserCreate, 

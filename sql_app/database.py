@@ -8,7 +8,7 @@ import os
 
 import databases
 from dotenv import load_dotenv, find_dotenv
-from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 
 
@@ -19,8 +19,9 @@ from sqlalchemy.ext.declarative import declarative_base
 load_dotenv(find_dotenv())
 SQLALCHEMY_DATABASE_URL = os.environ.get('SQLALCHEMY_DATABASE_URL')
 
+# Для асинхронных операций с базой данных
 database = databases.Database(SQLALCHEMY_DATABASE_URL)
 
-engine = create_async_engine(SQLALCHEMY_DATABASE_URL, echo=True)
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
 Base = declarative_base()

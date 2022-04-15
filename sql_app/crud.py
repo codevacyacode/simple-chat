@@ -12,7 +12,7 @@ from databases import Database
 from . import models, schemas
 
 
-def get_user(db: Database, user_id: int):
+async def get_user(db: Database, user_id: int):
     query = (models.User).filter(models.User.id==user_id).first()
     result = await db.fetch_one(query)
     return result
