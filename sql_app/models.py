@@ -29,8 +29,8 @@ class Message(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     time = Column(DateTime)
-    sender_id = Column(Integer, ForeignKey('user.id'))
-    receiver_id = Column(Integer, ForeignKey('user.id'))
+    sender_id = Column(Integer, ForeignKey('chat_user.id'))
+    receiver_id = Column(Integer, ForeignKey('chat_user.id'))
     text = Column(String, nullable=False, index=True)
     read = Column(Boolean, default=False)
     
