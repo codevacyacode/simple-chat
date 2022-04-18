@@ -10,10 +10,13 @@ from typing import List
 from fastapi import Depends, FastAPI, HTTPException
 from databases import Database
 
-from . import database, crud, models, schemas
+from . import database, crud, schemas
 
 
-(models.Base).metadata.create_all(bind=database.engine)
+async def init_models():
+    async with (database.engine).begin() as conn:
+        # await conn.run_sync((database.Base).metadata.drop_all)
+        await conn.run_sync((database.Base).metadata.create_all)
 
 app = FastAPI()
 
@@ -28,6 +31,7 @@ async def get_db():
 @app.on_event("startup")
 async def startup():
     await (database.database).connect()
+    await init_models()
     
 @app.on_event("shutdown")
 async def shutdown():
