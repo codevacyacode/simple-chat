@@ -6,7 +6,6 @@ Created on Tue Apr 12 17:57:46 2022
 '''
 from sqlalchemy import Column, ForeignKey 
 from sqlalchemy import Integer, String, Boolean, DateTime
-from sqlalchemy.orm import relationship
 
 from .database import Base
 
@@ -20,9 +19,6 @@ class User(Base):
     hashed_password = Column(String)
     online = Column(Boolean, default=False)
     
-    inbox = relationship('Message', back_populates='receiver')
-    outbox = relationship('Message', back_populates='sender')
-    
     
 class Message(Base):
     __tablename__ = 'message'
@@ -33,8 +29,3 @@ class Message(Base):
     receiver_id = Column(Integer, ForeignKey('chat_user.id'))
     text = Column(String, nullable=False, index=True)
     read = Column(Boolean, default=False)
-    
-    sender = relationship('User', foreign_keys=[sender_id],
-                          back_populates='outbox')
-    receiver = relationship('User', foreign_keys=[receiver_id],
-                            back_populates='inbox')

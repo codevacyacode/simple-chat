@@ -8,46 +8,46 @@ from datetime import datetime
 import hashlib
 
 from databases import Database
-from sqlalchemy import select
+from sqlalchemy import insert, select
 
 from . import models, schemas
 
 
 async def get_user(db: Database, user_id: int):
-    query = select(models.User).where(models.User.id==user_id).first()
+    query = select(models.User).where(models.User.id==user_id)
     result = await db.fetch_one(query)
     return result
 
 async def get_user_by_email(db: Database, email: str):
-    query = select(models.User).where(models.User.email==email).first()
+    query = select(models.User).where(models.User.email==email)
     result = await db.fetch_one(query)
     return result
 
 async def get_users(db: Database, skip: int = 0, limit: int = 100):
-    query = select(models.User).offset(skip).limit(limit).all()
+    query = select(models.User).offset(skip).limit(limit)
     result = await db.fetch_all(query)
     return result
 
 
 async def create_user(db: Database, user: schemas.UserCreate):
     hashed_password = hashlib.sha256(bytes(user.password, 'utf-8'))
-    query = (models.User).insert().values(email=user.email, 
-                                          hashed_password=hashed_password,
-                                          nickname=user.nickname)
+    hash_str = hashed_password.hexdigest()
+    query = insert(models.User).values(email=user.email, 
+                                       hashed_password=hash_str,
+                                       nickname=user.nickname)
     result = await db.execute(query)
     return result
 
 
 async def get_messages(db: Database, skip: int = 0, limit: int = 100):
-    query = select(models.Message).offset(skip).limit(limit).all()
+    query = select(models.Message).offset(skip).limit(limit)
     result = await db.fetch_all(query)
     return result
 
 
-async def create_message(db: Database, message: schemas.MessageCreate, 
-                   time: datetime):
+async def create_message(db: Database, message: schemas.MessageCreate):
     time = datetime.now()
     db_message = models.Message(**message.dict(), time=time)
-    query = (models.Message).insert().values(db_message)
+    query = insert(models.Message).values(db_message)
     await db.execute(query)
     return db_message

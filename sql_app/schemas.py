@@ -5,7 +5,6 @@ Created on Tue Apr 12 18:06:28 2022
 @author: codevacyacode
 """
 from datetime import datetime
-from typing import List
 
 from pydantic import BaseModel
 
@@ -45,8 +44,6 @@ class UserCreate(UserBase):
 class User(UserBase):
     id: int
     online: bool
-    inbox: List[Message] = None
-    outbox: List[Message] = None
 
     class Config:
         orm_mode = True

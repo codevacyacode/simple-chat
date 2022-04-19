@@ -4,7 +4,6 @@ Created on Tue Apr 12 18:08:45 2022
 
 @author: codevacyacode
 '''
-from datetime import datetime
 from typing import List
 
 from fastapi import Depends, FastAPI, HTTPException
@@ -25,6 +24,7 @@ async def get_db():
     db = database.database
     try:
         await db.connect()
+        yield db
     finally:
         await db.disconnect()
 
@@ -44,7 +44,9 @@ async def create_user(user: schemas.UserCreate,
     if db_user:
         raise HTTPException(status_code=400, 
                             detail='Email уже зарегистрирован')
-    return crud.create_user(db=db, user=user)
+    else:
+        result = await crud.create_user(db=db, user=user)
+    return result
 
 
 @app.get('/users/', response_model=List[schemas.User])
@@ -65,11 +67,10 @@ async def read_user(user_id: int, db: Database = Depends(get_db)):
 
 @app.post('/users/{user_id}/messages/', response_model=schemas.Message)
 async def create_message(
-    time: datetime, 
     message: schemas.MessageCreate, 
     db: Database = Depends(get_db)
 ):
-    result = await crud.create_message(db=db, message=message, time=time)
+    result = await crud.create_message(db=db, message=message)
     return result
 
 
