@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
+'''
 Created on Tue Apr 12 17:57:46 2022
 
 @author: codevacyacode
-"""
+'''
 from sqlalchemy import Column, ForeignKey 
 from sqlalchemy import Integer, String, Boolean, DateTime
 from sqlalchemy.orm import relationship

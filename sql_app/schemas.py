@@ -45,8 +45,8 @@ class UserCreate(UserBase):
 class User(UserBase):
     id: int
     online: bool
-    inbox: List[Message] = []
-    outbox: List[Message] = []
+    inbox: List[Message] = None
+    outbox: List[Message] = None
 
     class Config:
         orm_mode = True
