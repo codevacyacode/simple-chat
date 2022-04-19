@@ -5,6 +5,7 @@ Created on Tue Apr 12 18:06:28 2022
 @author: codevacyacode
 """
 from datetime import datetime
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -43,7 +44,7 @@ class UserCreate(UserBase):
 
 class User(UserBase):
     id: int
-    online: bool
+    online: Optional[bool] = False
 
     class Config:
         orm_mode = True

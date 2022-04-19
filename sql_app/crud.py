@@ -34,9 +34,10 @@ async def create_user(db: Database, user: schemas.UserCreate):
     hash_str = hashed_password.hexdigest()
     query = insert(models.User).values(email=user.email, 
                                        hashed_password=hash_str,
-                                       nickname=user.nickname)
-    result = await db.execute(query)
-    return result
+                                       nickname=user.nickname,
+                                       online=False)
+    await db.execute(query)
+    return user.email
 
 
 async def get_messages(db: Database, skip: int = 0, limit: int = 100):
@@ -47,7 +48,10 @@ async def get_messages(db: Database, skip: int = 0, limit: int = 100):
 
 async def create_message(db: Database, message: schemas.MessageCreate):
     time = datetime.now()
-    db_message = models.Message(**message.dict(), time=time)
-    query = insert(models.Message).values(db_message)
+    query = insert(models.Message).values(text=message.text, 
+                                          sender_id=message.sender_id, 
+                                          receiver_id=message.receiver_id, 
+                                          time=time, 
+                                          read=False)
     await db.execute(query)
-    return db_message
+    return message.sender_id # TODO: возвращать schemas.Message
