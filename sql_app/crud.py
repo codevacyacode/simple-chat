@@ -32,12 +32,12 @@ async def get_users(db: AsyncSession, skip: int = 0, limit: int = 100):
 async def create_user(db: AsyncSession, user: schemas.UserCreate):
     hashed_password = hashlib.sha256(bytes(user.password, 'utf-8'))
     hash_str = hashed_password.hexdigest()
-    query = insert(models.User).values(email=user.email, 
-                                       hashed_password=hash_str,
-                                       nickname=user.nickname,
-                                       online=False)
-    await db.execute(query)
-    return user.email
+    new_user = models.User(email=user.email, hashed_password=hash_str,
+                          nickname=user.nickname, online=False)
+    await db.add(new_user)
+    await db.commit()
+    await db.refresh(new_user)
+    return new_user
 
 
 async def get_messages(db: AsyncSession, skip: int = 0, limit: int = 100):
