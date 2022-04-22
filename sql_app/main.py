@@ -21,7 +21,6 @@ async def get_db():
         yield db
     finally:
         await db.close()
-
 @app.on_event('startup')
 async def startup():
     async with (database.engine).begin() as conn:
@@ -36,23 +35,24 @@ async def shutdown():
 @app.post('/users/', response_model=schemas.User)
 async def create_user(user: schemas.UserCreate, 
                       db: AsyncSession = Depends(get_db)):
+    '''
     db_user = await crud.get_user_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(status_code=400, 
                             detail='Email уже зарегистрирован')
     else:
         result = await crud.create_user(db=db, user=user)
+    '''
+    result = await crud.create_user(db=db, user=user)
     return result
 
 
 @app.get('/users/', response_model=List[schemas.User])
-async def read_users(skip: int = 0, 
-                     limit: int = 100, 
-                     db: AsyncSession = Depends(get_db)):
-    users = await crud.get_users(db, skip = skip, limit = limit)
+async def read_users(db: AsyncSession = Depends(get_db)):
+    users = await crud.get_users(db)
     return users
 
-
+'''
 @app.get('/users/{user_email}', response_model = schemas.User)
 async def read_email_user(user_email: str, db: AsyncSession = Depends(get_db)):
     db_user = await crud.get_user_by_email(db, email=user_email)
@@ -84,3 +84,4 @@ async def read_messages(skip: int = 0,
                         db: AsyncSession = Depends(get_db)):
     messages = await crud.get_messages(db, skip=skip, limit=limit)
     return messages
+'''
