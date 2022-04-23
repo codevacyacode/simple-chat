@@ -26,12 +26,12 @@
 
 Для миграций использовался alembic. После выполнения
 
- <alembic init -t async migrations> 
+	alembic init -t async migrations 
 
 необходимо отредактировать файлы alembic.ini и migrations\env.py.
 
 При разработке использовал uvicorn. При выполнении
 
-<uvicorn sql_app.main:app --reload>
+	uvicorn sql_app.main:app --reload
 
 запросы доступны по адресу http://localhost:8000/docs
