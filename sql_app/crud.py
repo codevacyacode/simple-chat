@@ -12,17 +12,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from . import models, schemas
 
+
 '''
 async def get_user(db: AsyncSession, user_id: int):
     query = select(models.User).where(models.User.id==user_id)
     result = await db.fetch_one(query)
     return result
-
-async def get_user_by_email(db: AsyncSession, email: str):
-    query = select(models.User).where(models.User.email==email)
-    result = await db.fetch_one(query)
-    return result
 '''
+
+# Функции, обращающиеся к  таблице с пользователями чата 
 async def create_user(db: AsyncSession, user: schemas.UserCreate):
     hashed_password = hashlib.sha256(bytes(user.password, 'utf-8'))
     hash_str = hashed_password.hexdigest()
@@ -43,6 +41,13 @@ async def get_user_by_email(db: AsyncSession, email: str):
 async def get_users(db: AsyncSession):
     query = select(models.User)
     result = await db.execute(query)
+    return result.scalars().all()
+
+
+# Функции, обращающиеся к таблице с сообщениями
+async def get_messages(db:AsyncSession, skip: int = 0, limit: int = 20):
+    stmt = select(models.Message).offset(skip).limit(limit)
+    result = await db.execute(stmt)
     return result.scalars().all()
 
 

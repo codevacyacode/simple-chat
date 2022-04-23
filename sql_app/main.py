@@ -21,16 +21,20 @@ async def get_db():
         yield db
     finally:
         await db.close()
+
+
 @app.on_event('startup')
 async def startup():
     async with (database.engine).begin() as conn:
         await conn.run_sync((database.Base).metadata.create_all)
+
 
 '''    
 @app.on_event('shutdown')
 async def shutdown():
     await (database.database).disconnect()
 '''
+
 
 @app.post('/users/', response_model=schemas.User)
 async def create_user(user: schemas.UserCreate, 
@@ -74,6 +78,7 @@ async def create_message(
 ):
     await crud.create_message(db=db, message=message)
     return message.receiver_id
+'''
 
 
 @app.get('/messages/', response_model=List[schemas.Message])
@@ -82,4 +87,3 @@ async def read_messages(skip: int = 0,
                         db: AsyncSession = Depends(get_db)):
     messages = await crud.get_messages(db, skip=skip, limit=limit)
     return messages
-'''
