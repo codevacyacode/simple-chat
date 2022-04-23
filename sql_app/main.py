@@ -35,14 +35,12 @@ async def shutdown():
 @app.post('/users/', response_model=schemas.User)
 async def create_user(user: schemas.UserCreate, 
                       db: AsyncSession = Depends(get_db)):
-    '''
     db_user = await crud.get_user_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(status_code=400, 
                             detail='Email уже зарегистрирован')
     else:
         result = await crud.create_user(db=db, user=user)
-    '''
     result = await crud.create_user(db=db, user=user)
     return result
 

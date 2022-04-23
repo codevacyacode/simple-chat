@@ -23,12 +23,6 @@ async def get_user_by_email(db: AsyncSession, email: str):
     result = await db.fetch_one(query)
     return result
 '''
-async def get_users(db: AsyncSession):
-    query = select(models.User)
-    result = await db.execute(query)
-    return result.scalars().all()
-
-
 async def create_user(db: AsyncSession, user: schemas.UserCreate):
     hashed_password = hashlib.sha256(bytes(user.password, 'utf-8'))
     hash_str = hashed_password.hexdigest()
@@ -38,6 +32,19 @@ async def create_user(db: AsyncSession, user: schemas.UserCreate):
     await db.commit()
     await db.refresh(new_user)
     return new_user
+
+
+async def get_user_by_email(db: AsyncSession, email: str):
+    stmt = select(models.User).where((models.User).email==email)
+    result = await db.execute(stmt)
+    return result.scalars().one_or_none()
+
+
+async def get_users(db: AsyncSession):
+    query = select(models.User)
+    result = await db.execute(query)
+    return result.scalars().all()
+
 
 '''
 async def get_messages(db: AsyncSession, skip: int = 0, limit: int = 100):
