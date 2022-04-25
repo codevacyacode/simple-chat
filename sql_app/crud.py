@@ -14,14 +14,8 @@ from sqlalchemy import or_
 from . import models, schemas
 
 
-'''
-async def get_user(db: AsyncSession, user_id: int):
-    query = select(models.User).where(models.User.id==user_id)
-    result = await db.fetch_one(query)
-    return result
-'''
-
-# Функции, обращающиеся к  таблице с пользователями чата 
+# Функции, обращающиеся к  таблице с пользователями чата
+ 
 async def create_user(db: AsyncSession, user: schemas.UserCreate):
     hashed_password = hashlib.sha256(bytes(user.password, 'utf-8'))
     hash_str = hashed_password.hexdigest()
@@ -39,13 +33,31 @@ async def get_user_by_email(db: AsyncSession, email: str):
     return result.scalars().one_or_none()
 
 
+async def get_user_by_id(db: AsyncSession, user_id: int):
+    stmt = select(models.User).where(models.User.id==user_id)
+    result = await db.execute(stmt)
+    return result.scalars().one_or_none()
+
+
 async def get_users(db: AsyncSession, skip: int = 0, limit: int = 20):
-    query = select(models.User).offset(skip).limit(limit)
-    result = await db.execute(query)
+    stmt = select(models.User).offset(skip).limit(limit)
+    result = await db.execute(stmt)
     return result.scalars().all()
 
 
 # Функции, обращающиеся к таблице с сообщениями
+
+async def create_message(db: AsyncSession, message: schemas.MessageCreate):
+    new_message = models.Message(text=message.text, 
+                                 sender_id=message.sender_id, 
+                                 receiver_id=message.receiver_id,
+                                 read=False)
+    db.add(new_message)
+    await db.commit()
+    await db.refresh(new_message)
+    return new_message
+
+
 async def get_all_messages(db:AsyncSession, skip: int = 0, limit: int = 20):
     stmt = select(models.Message).offset(skip).limit(limit)
     result = await db.execute(stmt)
@@ -60,14 +72,3 @@ async def get_their_messages(db:AsyncSession, user_id: int, skip: int = 0,
         )).offset(skip).limit(limit)
     result = await db.execute(stmt)
     return result.scalars().all()
-
-
-async def create_message(db: AsyncSession, message: schemas.MessageCreate):
-    new_message = models.Message(text=message.text, 
-                                 sender_id=message.sender_id, 
-                                 receiver_id=message.receiver_id,
-                                 read=False)
-    db.add(new_message)
-    await db.commit()
-    await db.refresh(new_message)
-    return new_message
