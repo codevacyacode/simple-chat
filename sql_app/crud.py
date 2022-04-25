@@ -38,8 +38,8 @@ async def get_user_by_email(db: AsyncSession, email: str):
     return result.scalars().one_or_none()
 
 
-async def get_users(db: AsyncSession):
-    query = select(models.User)
+async def get_users(db: AsyncSession, skip: int = 0, limit: int = 20):
+    query = select(models.User).offset(skip).limit(limit)
     result = await db.execute(query)
     return result.scalars().all()
 

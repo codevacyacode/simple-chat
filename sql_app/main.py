@@ -50,8 +50,10 @@ async def create_user(user: schemas.UserCreate,
 
 
 @app.get('/users/', response_model=List[schemas.User])
-async def read_users(db: AsyncSession = Depends(get_db)):
-    users = await crud.get_users(db)
+async def read_users(db: AsyncSession = Depends(get_db),
+                     skip: int = 0, 
+                     limit: int = 100):
+    users = await crud.get_users(db, skip=skip, limit=limit)
     return users
 
 '''
