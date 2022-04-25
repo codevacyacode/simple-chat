@@ -9,6 +9,7 @@ import hashlib
 
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import or_
 
 from . import models, schemas
 
@@ -45,26 +46,28 @@ async def get_users(db: AsyncSession, skip: int = 0, limit: int = 20):
 
 
 # Функции, обращающиеся к таблице с сообщениями
-async def get_messages(db:AsyncSession, skip: int = 0, limit: int = 20):
+async def get_all_messages(db:AsyncSession, skip: int = 0, limit: int = 20):
     stmt = select(models.Message).offset(skip).limit(limit)
     result = await db.execute(stmt)
     return result.scalars().all()
 
 
-'''
-async def get_messages(db: AsyncSession, skip: int = 0, limit: int = 100):
-    query = select(models.Message).offset(skip).limit(limit)
-    result = await db.fetch_all(query)
-    return result
+async def get_their_messages(db:AsyncSession, user_id: int, skip: int = 0,
+                             limit: int = 20):
+    stmt = select(models.Message).where(or_(
+        models.Message.receiver_id==user_id,
+        models.Message.sender_id==user_id
+        )).offset(skip).limit(limit)
+    result = await db.execute(stmt)
+    return result.scalars().all()
 
 
 async def create_message(db: AsyncSession, message: schemas.MessageCreate):
-    time = datetime.now()
-    query = insert(models.Message).values(text=message.text, 
-                                          sender_id=message.sender_id, 
-                                          receiver_id=message.receiver_id, 
-                                          time=time, 
-                                          read=False)
-    await db.execute(query)
-    return message.sender_id # TODO: возвращать schemas.Message
-'''
+    new_message = models.Message(text=message.text, 
+                                 sender_id=message.sender_id, 
+                                 receiver_id=message.receiver_id,
+                                 read=False)
+    db.add(new_message)
+    await db.commit()
+    await db.refresh(new_message)
+    return new_message

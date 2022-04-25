@@ -56,6 +56,7 @@ async def read_users(db: AsyncSession = Depends(get_db),
     users = await crud.get_users(db, skip=skip, limit=limit)
     return users
 
+
 '''
 @app.get('/users/{user_email}', response_model = schemas.User)
 async def read_email_user(user_email: str, db: AsyncSession = Depends(get_db)):
@@ -71,6 +72,7 @@ async def read_user(user_id: int, db: AsyncSession = Depends(get_db)):
     if db_user is None:
         raise HTTPException(status_code=404, detail='Пользователь не найден')
     return db_user
+'''
 
 
 @app.post('/users/{user_id}/messages/', response_model=schemas.Message)
@@ -78,14 +80,23 @@ async def create_message(
     message: schemas.MessageCreate, 
     db: AsyncSession = Depends(get_db)
 ):
-    await crud.create_message(db=db, message=message)
-    return message.receiver_id
-'''
+    result = await crud.create_message(db=db, message=message)
+    return result
 
 
 @app.get('/messages/', response_model=List[schemas.Message])
-async def read_messages(skip: int = 0, 
+async def read_all_messages(skip: int = 0, 
                         limit: int = 100, 
                         db: AsyncSession = Depends(get_db)):
-    messages = await crud.get_messages(db, skip=skip, limit=limit)
+    messages = await crud.get_all_messages(db, skip=skip, limit=limit)
+    return messages
+
+
+@app.get('/messages/{user_id}', response_model=List[schemas.Message])
+async def check_their_messages(user_id: int,                               
+                                db: AsyncSession = Depends(get_db),
+                                skip: int = 0, 
+                                limit: int = 100):
+    messages = await crud.get_their_messages(db, user_id=user_id, skip=skip,
+                                             limit=limit)
     return messages
