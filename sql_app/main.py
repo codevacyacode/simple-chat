@@ -36,7 +36,7 @@ async def shutdown():
 '''
 
 
-@app.post('/users/', response_model=schemas.User)
+@app.post('/new-here/', response_model=schemas.User)
 async def create_user(user: schemas.UserCreate, 
                       db: AsyncSession = Depends(get_db)):
     db_user = await crud.get_user_by_email(db, email=user.email)
@@ -65,7 +65,7 @@ async def read_user(user_id: int, db: AsyncSession = Depends(get_db)):
     return db_user
 
 
-@app.post('/users/{user_id}/message/', response_model=schemas.Message)
+@app.post('/send-message/', response_model=schemas.Message)
 async def create_message(
     message: schemas.MessageCreate, 
     db: AsyncSession = Depends(get_db)
@@ -74,7 +74,7 @@ async def create_message(
     return result
 
 
-@app.get('/messages/', response_model=List[schemas.Message])
+@app.get('/messages/admin/', response_model=List[schemas.Message])
 async def read_all_messages(skip: int = 0, 
                         limit: int = 100, 
                         db: AsyncSession = Depends(get_db)):
