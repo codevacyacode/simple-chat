@@ -13,6 +13,7 @@ API простого чата, реализованный на фреймвор�
   - main.py
   - models.py
   - schemas.py
+  - test_main.py
 - .env
 - .gitignore
 - alembic.ini
